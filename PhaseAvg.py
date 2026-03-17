@@ -1,3 +1,4 @@
+import config as cfg
 import numpy as np
 import matplotlib
 #matplotlib.use('Agg')  #display not required
@@ -6,26 +7,13 @@ from multiprocessing import Pool
 from scipy.signal import welch
 import util_functions
 
-packetfreq = 5000 #Hz
-period = 1/packetfreq
-fsample = 10e6     #Hz
-iter_interval = fsample/packetfreq
-rhoinf = 0.03754  #kg/m^3
-Tinf = 51         #K
-ainf = 143.150    #m/s 
-R = 287.0         #J/kg-K
-Cv = 717          #J/kg-K
-Lsep = 0.20       #m
-Uinf = 859        #m/s
-Pinf = rhoinf*R*Tinf
+period = 1/cfg.packetfreq
+iter_interval = cfg.fsample/cfg.packetfreq
 
 slices = []
 tapnum = [1,700,700] #Only the last one is plotted
 
-num_slices = 30000 #Number of slices per save file
-filenames = ["../5000Hz_276mm/outputs/outputs_060000/taps_K151_060000"]
-             #"../1000Hz_276mm/outputs/outputs_090000/taps_pulse_090000",
-             #"../1000Hz_276mm/outputs/outputs_120000/taps_pulse_120000"]
+filenames = [f"{cfg.basename}/outputs_060000/taps_K151_060000"]
 
 P = []
 
@@ -39,9 +27,9 @@ for kk in range(len(tapnum)):
 
     for ii in range(len(filenames)):
 
-        slices = util_functions.loadslices(filenames[ii],num_slices)
+        slices = util_functions.loadslices(filenames[ii],cfg.num_slices)
 
-        for jj in range(num_slices):
+        for jj in range(cfg.num_slices):
 
             rho_star.append(slices[jj]["Q"][tapnum[kk],0,0,0])
             rho_star_u_star.append(slices[jj]["Q"][tapnum[kk],0,0,1])
@@ -50,18 +38,18 @@ for kk in range(len(tapnum)):
             rho_star_e_star.append(slices[jj]["Q"][tapnum[kk],0,0,4])
 
 
-    rho = np.array(rho_star)*rhoinf
+    rho = np.array(rho_star)*cfg.rhoinf
     u_star = np.array(rho_star_u_star)/np.array(rho_star)
-    u = u_star*ainf
+    u = u_star*cfg.ainf
     v_star = np.array(rho_star_v_star)/np.array(rho_star)
-    v = v_star*ainf
+    v = v_star*cfg.ainf
     w_star = np.array(rho_star_w_star)/np.array(rho_star)
-    w = w_star*ainf
+    w = w_star*cfg.ainf
     e_star = np.array(rho_star_e_star)/np.array(rho_star)
-    e = e_star*ainf**2
-    temp = (e - 0.5*(u**2 + v**2 + w**2))/Cv
+    e = e_star*cfg.ainf**2
+    temp = (e - 0.5*(u**2 + v**2 + w**2))/cfg.Cv
 
-    P.append(rho*R*temp)
+    P.append(rho*cfg.R*temp)
 
 P = np.array(P)
 print(P.shape)
@@ -78,18 +66,18 @@ for ii in range(nperiods):
 P_bins = np.array(P_bins)
 print(P_bins.shape)
 
-timevec = np.arange(1, iter_interval + 1) * 5e-7
+timevec = np.arange(1, iter_interval + 1) * cfg.timestep
 
-P_bins_avg = np.mean(P_bins/Pinf, axis=0)
+P_bins_avg = np.mean(P_bins/cfg.Pinf, axis=0)
 
 plt.rcParams.update({'font.size': 16,'axes.labelsize': 16,
                      'axes.titlesize': 16,'xtick.labelsize': 16,
                      'ytick.labelsize': 16})
 
 plt.plot(timevec/period,P_bins_avg, c='red', label="Phase-Average")
-plt.scatter(timevec/period,P_bins[0,:]/Pinf, s=10, c='blue', label="Sampled Data")
+plt.scatter(timevec/period,P_bins[0,:]/cfg.Pinf, s=10, c='blue', label="Sampled Data")
 for jj in range(P_bins.shape[0]):
-    plt.scatter(timevec/period,P_bins[jj,:]/Pinf, s=10, c='blue')
+    plt.scatter(timevec/period,P_bins[jj,:]/cfg.Pinf, s=10, c='blue')
 plt.xlabel("$t/T_{packet}$")
 plt.ylabel("$P/P_{\infty}$")
 plt.legend()

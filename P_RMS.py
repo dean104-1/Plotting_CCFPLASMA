@@ -1,4 +1,4 @@
-#On carpenter do: module load python/3.10.4
+import config as cfg
 import numpy as np
 import matplotlib
 #matplotlib.use('Agg')  #display not required
@@ -7,24 +7,11 @@ from multiprocessing import Pool
 from scipy.signal import welch
 import util_functions
 
-packetfreq = 2000 #Hz
-rhoinf = 0.03754  #kg/m^3
-Tinf = 51         #K
-ainf = 143.150    #m/s 
-R = 287.0         #J/kg-K
-Cv = 717          #J/kg-K
-Lsep = 0.20       #m
-Uinf = 859        #m/s
-Pinf = rhoinf*R*Tinf
-
 slices = []
 
-num_slices = 30000 #Number of slices per save file
-filenames = ["../2000Hz_276mm/outputs/outputs_060000/taps_K151_060000"]
+filenames = [f"{cfg.basename}/outputs_060000/taps_K151_060000"]
              #"../5000Hz_276mm/outputs/outputs_090000/taps_pulse_090000",
              #"../5000Hz_276mm/outputs/outputs_120000/taps_pulse_120000"]
-
-n_iter = 60000 - 30000
 
 P = []
 
@@ -36,9 +23,9 @@ rho_star_e_star = []
 
 for ii in range(len(filenames)):
 
-    slices = util_functions.loadslices(filenames[ii],num_slices)
+    slices = util_functions.loadslices(filenames[ii],cfg.num_slices)
 
-    for jj in range(num_slices):
+    for jj in range(cfg.num_slices):
 
         rho_star.append(slices[jj]["Q"][:,0,0,0])
         rho_star_u_star.append(slices[jj]["Q"][:,0,0,1])
@@ -47,18 +34,18 @@ for ii in range(len(filenames)):
         rho_star_e_star.append(slices[jj]["Q"][:,0,0,4])
 
 
-rho = np.array(rho_star)*rhoinf
+rho = np.array(rho_star)*cfg.rhoinf
 u_star = np.array(rho_star_u_star)/np.array(rho_star)
-u = u_star*ainf
+u = u_star*cfg.ainf
 v_star = np.array(rho_star_v_star)/np.array(rho_star)
-v = v_star*ainf
+v = v_star*cfg.ainf
 w_star = np.array(rho_star_w_star)/np.array(rho_star)
-w = w_star*ainf
+w = w_star*cfg.ainf
 e_star = np.array(rho_star_e_star)/np.array(rho_star)
-e = e_star*ainf**2
-temp = (e - 0.5*(u**2 + v**2 + w**2))/Cv
+e = e_star*cfg.ainf**2
+temp = (e - 0.5*(u**2 + v**2 + w**2))/cfg.Cv
 
-P.append(rho*R*temp)
+P.append(rho*cfg.R*temp)
 P = np.array(P)
 
 P_avg = np.mean(P, axis=1) #take average over time
@@ -77,7 +64,7 @@ plt.rcParams.update({'font.size': 16,'axes.labelsize': 16,
 
 fig, ax1 = plt.subplots(figsize=(8,4))
 
-ax1.plot(slices[0]["X"][:].flatten(), P_RMS/Pinf, 'blue')
+ax1.plot(slices[0]["X"][:].flatten(), P_RMS/cfg.Pinf, 'blue')
 ax1.set_xlabel('x [mm]')
 ax1.set_ylabel("$P'_{RMS}/P_{\infty}$", color='blue')
 ax1.set_xlim(350,600)
