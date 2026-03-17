@@ -1,4 +1,3 @@
-#On carpenter do: module load python/3.10.4
 import numpy as np
 import matplotlib
 #matplotlib.use('Agg')  #display not required
@@ -7,9 +6,9 @@ from multiprocessing import Pool
 from scipy.signal import welch
 import util_functions
 
-packetfreq = 1000 #Hz
+packetfreq = 5000 #Hz
 period = 1/packetfreq
-fsample = 2e6     #Hz
+fsample = 10e6     #Hz
 iter_interval = fsample/packetfreq
 rhoinf = 0.03754  #kg/m^3
 Tinf = 51         #K
@@ -21,12 +20,12 @@ Uinf = 859        #m/s
 Pinf = rhoinf*R*Tinf
 
 slices = []
-tapnum = [640,1250,1730] #Only the last one is plotted
+tapnum = [1,700,700] #Only the last one is plotted
 
 num_slices = 30000 #Number of slices per save file
-filenames = ["../1000Hz_276mm/outputs/outputs_060000/taps_pulse_060000",
-             "../1000Hz_276mm/outputs/outputs_090000/taps_pulse_090000",
-             "../1000Hz_276mm/outputs/outputs_120000/taps_pulse_120000"]
+filenames = ["../5000Hz_276mm/outputs/outputs_060000/taps_K151_060000"]
+             #"../1000Hz_276mm/outputs/outputs_090000/taps_pulse_090000",
+             #"../1000Hz_276mm/outputs/outputs_120000/taps_pulse_120000"]
 
 P = []
 
@@ -83,13 +82,9 @@ timevec = np.arange(1, iter_interval + 1) * 5e-7
 
 P_bins_avg = np.mean(P_bins/Pinf, axis=0)
 
-plt.rcParams.update({
-    'font.size': 16,
-    'axes.labelsize': 16,
-    'axes.titlesize': 16,
-    'xtick.labelsize': 16,
-    'ytick.labelsize': 16
-})
+plt.rcParams.update({'font.size': 16,'axes.labelsize': 16,
+                     'axes.titlesize': 16,'xtick.labelsize': 16,
+                     'ytick.labelsize': 16})
 
 plt.plot(timevec/period,P_bins_avg, c='red', label="Phase-Average")
 plt.scatter(timevec/period,P_bins[0,:]/Pinf, s=10, c='blue', label="Sampled Data")

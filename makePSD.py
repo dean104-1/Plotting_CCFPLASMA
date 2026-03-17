@@ -1,4 +1,3 @@
-#On carpenter do: module load cray-python
 import numpy as np
 import matplotlib
 matplotlib.use('Agg')  #display not required
@@ -13,20 +12,18 @@ Tinf = 51         #K
 ainf = 143.150    #m/s 
 R = 287.0         #J/kg-K
 Cv = 717          #J/kg-K
-Lsep = 0.20       #m
+Lsep = 0.07       #m
 Uinf = 859        #m/s
 Pinf = rhoinf*R*Tinf
 
 slices = []
-tapnum = [640,1730]
+tapnum = [700,900]
 
 num_slices = 30000 #Number of slices per save file
-filenames = ["../5000Hz_276mm/outputs/outputs_060000/taps_pulse_060000",
-             "../5000Hz_276mm/outputs/outputs_090000/taps_pulse_090000",
-             "../5000Hz_276mm/outputs/outputs_120000/taps_pulse_120000"]
+filenames = ["../5000Hz_276mm/outputs/outputs_060000/taps_K151_060000"]
 
-n_iter = 120000 - 30000
-fs = 2e6  #Sampling frequency
+n_iter = 60000 - 30000
+fs = 10e6  #Sampling frequency
 nperseg = int(np.floor(n_iter / 4.5))
 noverlap = int(np.floor(0.5*nperseg))
 
@@ -69,13 +66,9 @@ for kk in range(len(tapnum)):
 
 #Compute PSDs
 
-plt.rcParams.update({
-    'font.size': 16,
-    'axes.labelsize': 16,
-    'axes.titlesize': 16,
-    'xtick.labelsize': 16,
-    'ytick.labelsize': 16
-})
+plt.rcParams.update({'font.size': 16,'axes.labelsize': 16,
+                     'axes.titlesize': 16,'xtick.labelsize': 16,
+                     'ytick.labelsize': 16})
 
 fig, axes = plt.subplots(3, 1, figsize=(8, 6))
 

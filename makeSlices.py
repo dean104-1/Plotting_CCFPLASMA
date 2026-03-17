@@ -28,74 +28,15 @@ def plot_dens_grad(nn):
 
     rhoGrad = util_functions.computeSchlieren(slice_data["NJ"], slice_data["NL"], slice_data["X"][:,0,:], radius, slice_data["Q"][:,0,:,0])
 
-    plt.rcParams.update({
-        'font.size': 16,
-        'axes.labelsize': 16,
-        'axes.titlesize': 16,
-        'xtick.labelsize': 16,
-        'ytick.labelsize': 16
-    })
+    plt.rcParams.update({'font.size': 16,'axes.labelsize': 16,
+                         'axes.titlesize': 16,'xtick.labelsize': 16,
+                         'ytick.labelsize': 16})
 
     fig, ax = plt.subplots(figsize=(20, 3.2), constrained_layout=True)
     ax.contourf(slice_data["X"][:,0,:], radius, rhoGrad[:,0,:],v, cmap='gray', extend='both')
     plt.xlim(350, 600)
     plt.ylim(30, 70)
     plt.title(r"$\nabla \rho /\rho_{\infty}$")
-    plt.xlabel('x [mm]')
-    plt.ylabel('radius [mm]')
-    plt.savefig(f'images/myplot_{nn:02d}.png', dpi=300)
-    plt.close()
-
-
-def plot_vorticity(nn):
-    slice_data = slices[nn]
-
-    v = np.linspace(-4, 4, 300, endpoint=True)
-    radius = np.sqrt(slice_data["Y"][:,0,:]**2 + slice_data["Z"][:,0,:]**2)
-    v_radial = np.sqrt(slice_data["Q"][:,0,:,2]**2 + slice_data["Q"][:,0,:,3]**2)
-
-    Vorticity = util_functions.computeVorticity(slice_data["NJ"], slice_data["NL"], slice_data["X"][:,0,:], radius, slice_data["Q"][:,0,:,1], v_radial)
-
-    plt.rcParams.update({
-        'font.size': 16,
-        'axes.labelsize': 16,
-        'axes.titlesize': 16,
-        'xtick.labelsize': 16,
-        'ytick.labelsize': 16
-    })
-
-    fig, ax = plt.subplots(figsize=(20, 3.2), constrained_layout=True)
-    ax.contourf(slice_data["X"][:,0,:], radius, Vorticity[:,0,:],v, cmap='gray_r', extend='both')
-    plt.xlim(350, 600)
-    plt.ylim(30, 70)
-    plt.title('Vorticity')
-    plt.xlabel('x [mm]')
-    plt.ylabel('radius [mm]')
-    plt.savefig(f'images/myplot_{nn:02d}.png', dpi=300)
-    plt.close()
-
-def plot_dilitation(nn):
-    slice_data = slices[nn]
-
-    v = np.linspace(-0.25, 0.25, 300, endpoint=True)
-    radius = np.sqrt(slice_data["Y"][:,0,:]**2 + slice_data["Z"][:,0,:]**2)
-    v_radial = np.sqrt(slice_data["Q"][:,0,:,2]**2 + slice_data["Q"][:,0,:,3]**2)
-
-    Dilitation = util_functions.computeDilitation(slice_data["NJ"], slice_data["NL"], slice_data["X"][:,0,:], radius, slice_data["Q"][:,0,:,1], v_radial)
-
-    plt.rcParams.update({
-        'font.size': 16,
-        'axes.labelsize': 16,
-        'axes.titlesize': 16,
-        'xtick.labelsize': 16,
-        'ytick.labelsize': 16
-    })
-
-    fig, ax = plt.subplots(figsize=(20, 3.2), constrained_layout=True)    
-    ax.contourf(slice_data["X"][:,0,:], radius, Dilitation[:,0,:],v, cmap='Greys', extend='both')
-    plt.xlim(350, 600)
-    plt.ylim(30, 70)
-    plt.title(r'$\nabla \cdot \vec{u}$')
     plt.xlabel('x [mm]')
     plt.ylabel('radius [mm]')
     plt.savefig(f'images/myplot_{nn:02d}.png', dpi=300)

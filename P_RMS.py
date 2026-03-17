@@ -7,7 +7,7 @@ from multiprocessing import Pool
 from scipy.signal import welch
 import util_functions
 
-packetfreq = 5000 #Hz
+packetfreq = 2000 #Hz
 rhoinf = 0.03754  #kg/m^3
 Tinf = 51         #K
 ainf = 143.150    #m/s 
@@ -20,7 +20,7 @@ Pinf = rhoinf*R*Tinf
 slices = []
 
 num_slices = 30000 #Number of slices per save file
-filenames = ["../5000Hz_276mm/outputs/outputs_060000/taps_K151_060000"]
+filenames = ["../2000Hz_276mm/outputs/outputs_060000/taps_K151_060000"]
              #"../5000Hz_276mm/outputs/outputs_090000/taps_pulse_090000",
              #"../5000Hz_276mm/outputs/outputs_120000/taps_pulse_120000"]
 
@@ -71,13 +71,9 @@ P_RMS = P_RMS.squeeze()   #Flatten the array
 
 radius = np.sqrt(slices[0]["Y"][:].flatten()**2 + slices[0]["Z"][:].flatten()**2)
 
-plt.rcParams.update({
-    'font.size': 16,
-    'axes.labelsize': 16,
-    'axes.titlesize': 16,
-    'xtick.labelsize': 16,
-    'ytick.labelsize': 16
-})
+plt.rcParams.update({'font.size': 16,'axes.labelsize': 16,
+                     'axes.titlesize': 16,'xtick.labelsize': 16,
+                     'ytick.labelsize': 16})
 
 fig, ax1 = plt.subplots(figsize=(8,4))
 

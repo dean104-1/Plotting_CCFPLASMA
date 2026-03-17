@@ -17,7 +17,7 @@ import colorcet as cc
 slices = []
 
 timestep = 1e-7
-num_slices = 400
+num_slices = 1000
 filename_wall = "../5000Hz_276mm/outputs/outputs_060000/wall_060000" 
 filename_right_wall = "../5000Hz_276mm/outputs/outputs_060000/slice_K601_060000"
 filename_cross = "../5000Hz_276mm/outputs/outputs_060000/slice_J1300_060000" 
@@ -65,7 +65,7 @@ def plot_dens_grad(nn):
     plotter.close()
 
 if __name__ == "__main__":
-    num_workers = 128
+    num_workers = 32
 
     with Pool(processes=num_workers) as pool:
         #pool.map(plot_tap_history, range(num_slices))

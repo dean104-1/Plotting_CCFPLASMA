@@ -1,4 +1,3 @@
-#On carpenter do: module load cray-python
 import numpy as np
 import matplotlib
 matplotlib.use('Agg')  #display not required
@@ -11,10 +10,10 @@ slices_right_wall = []
 slices_left_wall = []
 
 timestep = 1e-7
-num_slices = 400
-filename_wall = "../5000Hz_276mm/outputs/outputs_020000/wall_020000"
-filename_right_wall = "../5000Hz_276mm/outputs/outputs_020000/right_wall_020000"
-filename_left_wall = "../5000Hz_276mm/outputs/outputs_020000/left_wall_020000"
+num_slices = 600
+filename_wall = "../5000Hz_276mm/outputs/outputs_060000/wall_060000"
+filename_right_wall = "../5000Hz_276mm/outputs/outputs_060000/slice_K601_060000"
+filename_left_wall = "../5000Hz_276mm/outputs/outputs_060000/slice_K1_060000"
 
 slices_wall = util_functions.loadslices(filename_wall,num_slices)
 slices_right_wall = util_functions.loadslices(filename_right_wall,num_slices)
@@ -31,13 +30,9 @@ def anFullBody(nn):
     y_rotated_right_wall = slices_data_right_wall["Y"][:,0,:]*np.cos(np.radians(45)) - slices_data_right_wall["Z"][:,0,:]*np.sin(np.radians(45))
     y_rotated_left_wall = slices_data_left_wall["Y"][:,0,:]*np.cos(np.radians(45)) - slices_data_left_wall["Z"][:,0,:]*np.sin(np.radians(45))
 
-    plt.rcParams.update({
-        'font.size': 16,
-        'axes.labelsize': 16,
-        'axes.titlesize': 16,
-        'xtick.labelsize': 16,
-        'ytick.labelsize': 16
-    })
+    plt.rcParams.update({'font.size': 16,'axes.labelsize': 16,
+                         'axes.titlesize': 16,'xtick.labelsize': 16,
+                         'ytick.labelsize': 16})
 
     fig, ax = plt.subplots(figsize=(18, 8.64))
     ax.contourf(slices_data_wall["X"][:,:,0], y_rotated_wall, slices_data_wall["Q"][:,:,0,0] , np.linspace(0, 1.8, 300, endpoint=True), cmap='hot', extend='both')
