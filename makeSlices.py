@@ -63,7 +63,7 @@ def plot_tap_history(nn):
             rho_star_e_star.append(taps[jj]["Q"][cfg.tapnum_vec[kk],0,0,4])
 
 
-        rho = np.array(rho_star)*rhoinf
+        rho = np.array(rho_star)*cfg.rhoinf
         u_star = np.array(rho_star_u_star)/np.array(rho_star)
         u = u_star*cfg.ainf
         v_star = np.array(rho_star_v_star)/np.array(rho_star)
@@ -100,13 +100,13 @@ def plot_tap_history(nn):
     axes[0].set_ylabel("r [mm]")
     axes[0].set_xlim(390, 590)
 
-    axes[1].plot(timevec, P[0]/Pinf, color='magenta')
+    axes[1].plot(timevec, P[0]/cfg.Pinf, color='magenta')
     axes[1].axvline(x= cfg.timestep*20*nn, linestyle='--', linewidth=1, label='Vertical line')
     axes[1].set_ylabel("$P/P_{\infty}$")
     axes[1].set_xlim(0,0.001)
     axes[1].grid(True)
 
-    axes[2].plot(timevec, P[1]/Pinf, color='green')
+    axes[2].plot(timevec, P[1]/cfg.Pinf, color='green')
     axes[2].axvline(x= cfg.timestep*20*nn, linestyle='--', linewidth=1, label='Vertical line')
     axes[2].set_ylabel("$P/P_{\infty}$")
     axes[2].set_xlabel("time [s]")

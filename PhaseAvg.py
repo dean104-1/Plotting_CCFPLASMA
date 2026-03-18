@@ -49,16 +49,16 @@ temp = (e - 0.5*(u**2 + v**2 + w**2))/cfg.Cv
 P.append(rho*cfg.R*temp)
 
 P = np.array(P)
+P = P.flatten()
 print(P.shape)
 
-nperiods = round(len(P[0,:])/iter_interval)
+nperiods = round(len(P[:])/iter_interval)
 
 P_bins = []
 for ii in range(nperiods):
     startidx = int(ii*iter_interval)
     endidx = int((ii+1)*iter_interval)
-    P_bins.append(P[2,startidx:endidx])
-
+    P_bins.append(P[startidx:endidx])
 
 P_bins = np.array(P_bins)
 print(P_bins.shape)
