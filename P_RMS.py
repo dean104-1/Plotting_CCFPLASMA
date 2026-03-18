@@ -10,8 +10,6 @@ import util_functions
 slices = []
 
 filenames = [f"{cfg.basename}/outputs_060000/taps_K151_060000"]
-             #"../5000Hz_276mm/outputs/outputs_090000/taps_pulse_090000",
-             #"../5000Hz_276mm/outputs/outputs_120000/taps_pulse_120000"]
 
 P = []
 
@@ -23,9 +21,9 @@ rho_star_e_star = []
 
 for ii in range(len(filenames)):
 
-    slices = util_functions.loadslices(filenames[ii],cfg.num_slices)
+    slices = util_functions.loadslices(filenames[ii],cfg.num_taps)
 
-    for jj in range(cfg.num_slices):
+    for jj in range(cfg.num_taps):
 
         rho_star.append(slices[jj]["Q"][:,0,0,0])
         rho_star_u_star.append(slices[jj]["Q"][:,0,0,1])

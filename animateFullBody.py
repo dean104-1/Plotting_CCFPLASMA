@@ -1,3 +1,4 @@
+import config as cfg
 import numpy as np
 import matplotlib
 matplotlib.use('Agg')  #display not required
@@ -9,15 +10,13 @@ slices_wall = []
 slices_right_wall = []
 slices_left_wall = []
 
-timestep = 1e-7
-num_slices = 600
-filename_wall = "../5000Hz_276mm/outputs/outputs_060000/wall_060000"
-filename_right_wall = "../5000Hz_276mm/outputs/outputs_060000/slice_K601_060000"
-filename_left_wall = "../5000Hz_276mm/outputs/outputs_060000/slice_K1_060000"
+filename_wall = f"{cfg.basename}/outputs_060000/wall_060000"
+filename_right_wall = f"{cfg.basename}/outputs_060000/slice_K601_060000"
+filename_left_wall = f"{cfg.basename}/outputs_060000/slice_K1_060000"
 
-slices_wall = util_functions.loadslices(filename_wall,num_slices)
-slices_right_wall = util_functions.loadslices(filename_right_wall,num_slices)
-slices_left_wall = util_functions.loadslices(filename_left_wall,num_slices)
+slices_wall = util_functions.loadslices(filename_wall,cfg.num_slices)
+slices_right_wall = util_functions.loadslices(filename_right_wall,cfg.num_slices)
+slices_left_wall = util_functions.loadslices(filename_left_wall,cfg.num_slices)
 
 print("Done loading data")
 
@@ -51,8 +50,8 @@ if __name__ == "__main__":
     num_workers = 32
 
     with Pool(processes=num_workers) as pool:
-        #pool.map(plot_tap_history, range(num_slices))
-        pool.map(anFullBody, range(num_slices))
+        #pool.map(plot_tap_history, range(cfg.num_slices))
+        pool.map(anFullBody, range(cfg.num_slices))
 
     print("All slices processed in parallel.")
 

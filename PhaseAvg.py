@@ -11,45 +11,42 @@ period = 1/cfg.packetfreq
 iter_interval = cfg.fsample/cfg.packetfreq
 
 slices = []
-tapnum = [1,700,700] #Only the last one is plotted
 
 filenames = [f"{cfg.basename}/outputs_060000/taps_K151_060000"]
 
 P = []
 
-for kk in range(len(tapnum)):
+rho_star = []
+rho_star_u_star = []
+rho_star_v_star = []
+rho_star_w_star = []
+rho_star_e_star = []
 
-    rho_star = []
-    rho_star_u_star = []
-    rho_star_v_star = []
-    rho_star_w_star = []
-    rho_star_e_star = []
+for ii in range(len(filenames)):
 
-    for ii in range(len(filenames)):
+    slices = util_functions.loadslices(filenames[ii],cfg.num_taps)
 
-        slices = util_functions.loadslices(filenames[ii],cfg.num_slices)
+    for jj in range(cfg.num_taps):
 
-        for jj in range(cfg.num_slices):
-
-            rho_star.append(slices[jj]["Q"][tapnum[kk],0,0,0])
-            rho_star_u_star.append(slices[jj]["Q"][tapnum[kk],0,0,1])
-            rho_star_v_star.append(slices[jj]["Q"][tapnum[kk],0,0,2])
-            rho_star_w_star.append(slices[jj]["Q"][tapnum[kk],0,0,3])
-            rho_star_e_star.append(slices[jj]["Q"][tapnum[kk],0,0,4])
+        rho_star.append(slices[jj]["Q"][cfg.tapnum,0,0,0])
+        rho_star_u_star.append(slices[jj]["Q"][cfg.tapnum,0,0,1])
+        rho_star_v_star.append(slices[jj]["Q"][cfg.tapnum,0,0,2])
+        rho_star_w_star.append(slices[jj]["Q"][cfg.tapnum,0,0,3])
+        rho_star_e_star.append(slices[jj]["Q"][cfg.tapnum,0,0,4])
 
 
-    rho = np.array(rho_star)*cfg.rhoinf
-    u_star = np.array(rho_star_u_star)/np.array(rho_star)
-    u = u_star*cfg.ainf
-    v_star = np.array(rho_star_v_star)/np.array(rho_star)
-    v = v_star*cfg.ainf
-    w_star = np.array(rho_star_w_star)/np.array(rho_star)
-    w = w_star*cfg.ainf
-    e_star = np.array(rho_star_e_star)/np.array(rho_star)
-    e = e_star*cfg.ainf**2
-    temp = (e - 0.5*(u**2 + v**2 + w**2))/cfg.Cv
+rho = np.array(rho_star)*cfg.rhoinf
+u_star = np.array(rho_star_u_star)/np.array(rho_star)
+u = u_star*cfg.ainf
+v_star = np.array(rho_star_v_star)/np.array(rho_star)
+v = v_star*cfg.ainf
+w_star = np.array(rho_star_w_star)/np.array(rho_star)
+w = w_star*cfg.ainf
+e_star = np.array(rho_star_e_star)/np.array(rho_star)
+e = e_star*cfg.ainf**2
+temp = (e - 0.5*(u**2 + v**2 + w**2))/cfg.Cv
 
-    P.append(rho*cfg.R*temp)
+P.append(rho*cfg.R*temp)
 
 P = np.array(P)
 print(P.shape)

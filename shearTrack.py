@@ -1,9 +1,9 @@
-#On carpenter do: module load cray-python
 import os
 os.environ['VTK_GRAPHICS_BACKEND'] = 'OSMesa'
 os.environ['PYVISTA_OFF_SCREEN'] = 'true'
 os.environ['PYVISTA_USE_OSMESA'] = 'true'
 
+import config as cfg
 import numpy as np
 from scipy import ndimage
 import matplotlib
@@ -16,27 +16,24 @@ import colorcet as cc
 
 slices = []
 
-dofilter = 1
-timestep = 1e-7
-num_slices = 200
-filename_slices = "../5000Hz_276mm/outputs/outputs_060000/slice_K151_060000"
+filename_slices = f"{cfg.basename}/outputs_060000/slice_K151_060000"
 
-slices = util_functions.loadslices(filename_slices,num_slices)
+slices = util_functions.loadslices(filename_slices,cfg.num_slices)
 
 print("Done loading data")
 
-density = np.zeros((num_slices, slices[0]["NJ"], slices[0]["NL"]))  #init density
+density = np.zeros((cfg.num_slices, slices[0]["NJ"], slices[0]["NL"]))  #init density
 
-for nn in range(num_slices):
+for nn in range(cfg.num_slices):
     density[nn,:,:] = slices[nn]["Q"][:,0,:,0]
 
 #density[:,:,:] = ndimage.gaussian_filter(density[:,:,:], sigma=2)
 
-if(dofilter==1):
+if(cfg.dofilter==1):
     #for jj in range(slices[0]["NJ"]):
     #    for ll in range(slices[0]["NL"]):
     #        density[:,jj,ll] = ndimage.gaussian_filter(density[:,jj,ll], sigma=1)
-    for nn in range(num_slices):
+    for nn in range(cfg.num_slices):
         density[nn,:,:] = ndimage.gaussian_filter(density[nn,:,:], sigma=3)
 
 def plot_dens_grad(nn):
@@ -74,7 +71,7 @@ if __name__ == "__main__":
     num_workers = 64
 
     with Pool(processes=num_workers) as pool:
-        #pool.map(plot_tap_history, range(num_slices))
-        pool.map(plot_dens_grad, range(num_slices))
+        #pool.map(plot_tap_history, range(cfg.num_slices))
+        pool.map(plot_dens_grad, range(cfg.num_slices))
 
         print("All slices processed in parallel.")
