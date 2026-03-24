@@ -12,8 +12,8 @@ taps = []
 filename_slices = f"{cfg.basename}/outputs_060000/slice_K151_060000"
 filename_taps = f"{cfg.basename}/outputs_060000/taps_K151_060000"
 
-slices = util_functions.loadslices(filename_slices,cfg.num_slices)
-taps = util_functions.loadslices(filename_taps,cfg.num_taps)
+slices = util_functions.loadslices(filename_slices,500) #500 slices
+taps = util_functions.loadslices(filename_taps,10000)   #10000 taps
 
 print("Done loading data")
 
@@ -54,7 +54,7 @@ def plot_tap_history(nn):
         rho_star_w_star = []
         rho_star_e_star = []
 
-        for jj in range(cfg.num_taps):
+        for jj in range(10000):
 
             rho_star.append(taps[jj]["Q"][cfg.tapnum_vec[kk],0,0,0])
             rho_star_u_star.append(taps[jj]["Q"][cfg.tapnum_vec[kk],0,0,1])

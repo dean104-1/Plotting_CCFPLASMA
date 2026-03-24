@@ -9,8 +9,6 @@ import util_functions
 
 slices = []
 
-filenames = [f"{cfg.basename}/outputs_060000/taps_K151_060000"]
-
 P = []
 
 rho_star = []
@@ -19,18 +17,17 @@ rho_star_v_star = []
 rho_star_w_star = []
 rho_star_e_star = []
 
-for ii in range(len(filenames)):
+for ii in range(len(cfg.filenames_taps)):
 
-    slices = util_functions.loadslices(filenames[ii],cfg.num_taps)
+    slices = util_functions.loadslices(cfg.filenames_taps[ii],cfg.lengths_taps[ii])
 
-    for jj in range(cfg.num_taps):
+    for nn in range(cfg.lengths_taps[ii]):
 
-        rho_star.append(slices[jj]["Q"][:,0,0,0])
-        rho_star_u_star.append(slices[jj]["Q"][:,0,0,1])
-        rho_star_v_star.append(slices[jj]["Q"][:,0,0,2])
-        rho_star_w_star.append(slices[jj]["Q"][:,0,0,3])
-        rho_star_e_star.append(slices[jj]["Q"][:,0,0,4])
-
+        rho_star.append(slices[nn]["Q"][:,0,0,0])
+        rho_star_u_star.append(slices[nn]["Q"][:,0,0,1])
+        rho_star_v_star.append(slices[nn]["Q"][:,0,0,2])
+        rho_star_w_star.append(slices[nn]["Q"][:,0,0,3])
+        rho_star_e_star.append(slices[nn]["Q"][:,0,0,4])
 
 rho = np.array(rho_star)*cfg.rhoinf
 u_star = np.array(rho_star_u_star)/np.array(rho_star)

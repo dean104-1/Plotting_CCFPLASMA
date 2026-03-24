@@ -1,2 +1,2 @@
 #!/bin/bash
-rm -rf runpy.* *.png 
+rm -rf runpy.* *.png slurm-* 
