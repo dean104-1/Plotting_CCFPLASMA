@@ -17,13 +17,13 @@ import colorcet as cc
 
 slices = []
 
-filename_wall = f"{cfg.basename}/outputs_060000/wall_060000" 
-filename_right_wall = f"{cfg.basename}/outputs_060000/slice_K601_060000"
-filename_cross = f"{cfg.basename}/outputs_060000/slice_J1300_060000" 
+filename_wall = f"{cfg.basename}/outputs_0050000/slices_wall_0050000" 
+filename_right_wall = f"{cfg.basename}/outputs_0050000/slices_K601_0050000"
+filename_cross = f"{cfg.basename}/outputs_0050000/slices_J1300_0050000" 
 
-slices_wall = util_functions.loadslices(filename_wall,cfg.num_slices)
-slices_right_wall = util_functions.loadslices(filename_right_wall,cfg.num_slices)
-slices_cross = util_functions.loadslices(filename_cross,cfg.num_slices)
+slices_wall = util_functions.loadslices(filename_wall,cfg.lengths_slices[0])
+slices_right_wall = util_functions.loadslices(filename_right_wall,cfg.lengths_slices[0])
+slices_cross = util_functions.loadslices(filename_cross,cfg.lengths_slices[0])
 
 print("Done loading data")
 
@@ -67,7 +67,6 @@ if __name__ == "__main__":
     num_workers = 32
 
     with Pool(processes=num_workers) as pool:
-        #pool.map(plot_tap_history, range(cfg.num_slices))
-        pool.map(plot_dens_grad, range(cfg.num_slices))
+        pool.map(plot_dens_grad, range(cfg.lengths_slices[0]))
 
         print("All slices processed in parallel.")

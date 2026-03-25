@@ -75,7 +75,7 @@ axes[1].axvline(x= 4*cfg.packetfreq*cfg.Lsep/cfg.Uinf, linestyle='--', linewidth
 axes[1].set_title("PSD | Separation")
 axes[1].set_xlabel("$St_{L}$")
 axes[1].set_ylabel("$f*G(f)/\sigma^{2}$")
-axes[1].set_xlim(0.05,10)
+axes[1].set_xlim(0.01,1000)
 axes[1].grid(True)
 
 f, psd = welch(P[1]-np.mean(P[1]), fs=cfg.fsample, nperseg=nperseg, noverlap=noverlap, window='hann')
@@ -88,7 +88,7 @@ axes[2].axvline(x= 4*cfg.packetfreq*cfg.Lsep/cfg.Uinf, linestyle='--', linewidth
 axes[2].set_title("PSD | Mid-Bubble")
 axes[2].set_xlabel("$St_{L}$")
 axes[2].set_ylabel("$f*G(f)/\sigma^{2}$")
-axes[2].set_xlim(0.05,10)
+axes[2].set_xlim(0.01,1000)
 axes[2].grid(True)
 
 plt.tight_layout()
