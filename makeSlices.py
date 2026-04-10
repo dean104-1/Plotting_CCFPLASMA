@@ -9,36 +9,40 @@ import util_functions
 slices = []
 taps = []
 
-filename_slices = f"{cfg.basename}/outputs_060000/slice_K151_060000"
-filename_taps = f"{cfg.basename}/outputs_060000/taps_K151_060000"
+filename_slices = f"{cfg.basename}/outputs_0150000/slices_K151_0150000"
+filename_taps = f"{cfg.basename}/outputs_0150000/taps_K151_0150000"
 
-slices = util_functions.loadslices(filename_slices,500) #500 slices
-taps = util_functions.loadslices(filename_taps,10000)   #10000 taps
+slices = util_functions.loadslices(filename_slices,1000)
+taps = util_functions.loadslices(filename_taps,20000)
+
+XLOCDATA = slices[0]["X"][:,0,:]
+YLOCDATA = slices[0]["Y"][:,0,:]
+ZLOCDATA = slices[0]["Z"][:,0,:]
 
 print("Done loading data")
 
 def plot_dens_grad(nn):
     slice_data = slices[nn]
 
-    v = np.linspace(0, 2.0, 300, endpoint=True)
-    radius = np.sqrt(slice_data["Y"][:,0,:]**2 + slice_data["Z"][:,0,:]**2)
+    v = np.linspace(-2.0, 0.3, 300, endpoint=True)
+    radius = np.sqrt(YLOCDATA**2 + ZLOCDATA**2)
 
-    rhoGrad = util_functions.computeSchlieren(slice_data["NJ"], slice_data["NL"], slice_data["X"][:,0,:], radius, slice_data["Q"][:,0,:,0])
+    rhoGrad = util_functions.computeSchlieren(slice_data["NJ"], slice_data["NL"], XLOCDATA, radius, slice_data["Q"][:,0,:,0])
 
     plt.rcParams.update({'font.size': 16,'axes.labelsize': 16,
                          'axes.titlesize': 16,'xtick.labelsize': 16,
                          'ytick.labelsize': 16})
 
     fig, ax = plt.subplots(figsize=(20, 3.2), constrained_layout=True)
-    ax.contourf(slice_data["X"][:,0,:], radius, rhoGrad[:,0,:],v, cmap='gray', extend='both')
-    plt.xlim(350, 600)
+    ax.contourf(XLOCDATA, radius, np.log10(rhoGrad[:,0,:]),v, cmap='gray', extend='both')
+    plt.xlim(380, 590)
     plt.ylim(30, 70)
     plt.title(r"$\nabla \rho /\rho_{\infty}$")
     plt.xlabel('x [mm]')
     plt.ylabel('radius [mm]')
     plt.savefig(f'images/myplot_{nn:02d}.png', dpi=300)
     plt.close()
-
+     
 def plot_tap_history(nn):
     print("begin tap history function")
     slice_data = slices[nn]
@@ -54,7 +58,7 @@ def plot_tap_history(nn):
         rho_star_w_star = []
         rho_star_e_star = []
 
-        for jj in range(10000):
+        for jj in range(20000):
 
             rho_star.append(taps[jj]["Q"][cfg.tapnum_vec[kk],0,0,0])
             rho_star_u_star.append(taps[jj]["Q"][cfg.tapnum_vec[kk],0,0,1])
@@ -84,7 +88,7 @@ def plot_tap_history(nn):
 
     rhoGrad = util_functions.computeSchlieren(slice_data["NJ"], slice_data["NL"], slice_data["X"][:,0,:], radius, slice_data["Q"][:,0,:,0])
 
-    timevec = np.arange(1, 10001) * cfg.timestep
+    timevec = np.arange(1, 20001) * cfg.timestep
 
     plt.rcParams.update({'font.size': 16,'axes.labelsize': 16,
                          'axes.titlesize': 16,'xtick.labelsize': 16,
@@ -103,14 +107,16 @@ def plot_tap_history(nn):
     axes[1].plot(timevec, P[0]/cfg.Pinf, color='magenta')
     axes[1].axvline(x= cfg.timestep*20*nn, linestyle='--', linewidth=1, label='Vertical line')
     axes[1].set_ylabel("$P/P_{\infty}$")
-    axes[1].set_xlim(0,0.001)
+    axes[1].set_xlim(0,0.002)
+    axes[1].set_xticks([0.0,0.001,0.002])
     axes[1].grid(True)
 
     axes[2].plot(timevec, P[1]/cfg.Pinf, color='green')
     axes[2].axvline(x= cfg.timestep*20*nn, linestyle='--', linewidth=1, label='Vertical line')
     axes[2].set_ylabel("$P/P_{\infty}$")
     axes[2].set_xlabel("time [s]")
-    axes[2].set_xlim(0,0.001)
+    axes[2].set_xlim(0,0.002)
+    axes[2].set_xticks([0.0,0.001,0.002])
     axes[2].grid(True)
 
     plt.tight_layout()
@@ -118,10 +124,10 @@ def plot_tap_history(nn):
     plt.close()
 
 if __name__ == "__main__":
-    num_workers = 128
+    num_workers = 64
 
     with Pool(processes=num_workers) as pool:
-        pool.map(plot_tap_history, range(cfg.num_slices))
+        pool.map(plot_dens_grad, range(1000))
         #pool.map(plot_dens_grad, range(cfg.num_slices))
 
     print("All slices processed in parallel.")

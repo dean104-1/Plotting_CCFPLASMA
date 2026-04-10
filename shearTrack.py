@@ -16,9 +16,9 @@ import colorcet as cc
 
 slices = []
 
-filename_slices = f"{cfg.basename}/outputs_060000/slice_K151_060000"
+filename_slices = f"{cfg.basename}/outputs_0150000/slice_K151_0150000"
 
-slices = util_functions.loadslices(filename_slices,cfg.num_slices)
+slices = util_functions.loadslices(filename_slices,1000)
 
 print("Done loading data")
 

@@ -63,12 +63,15 @@ print(P_bins.shape)
 timevec = np.arange(1, iter_interval + 1) * cfg.timestep
 
 P_bins_avg = np.mean(P_bins/cfg.Pinf, axis=0)
+P_bins_std = np.std(P_bins/cfg.Pinf, axis=0)
 
 plt.rcParams.update({'font.size': 16,'axes.labelsize': 16,
                      'axes.titlesize': 16,'xtick.labelsize': 16,
                      'ytick.labelsize': 16})
 
 plt.plot(timevec/period,P_bins_avg, c='red', label="Phase-Average")
+plt.plot(timevec/period,P_bins_avg+P_bins_std, c='lime')
+plt.plot(timevec/period,P_bins_avg-P_bins_std, c='lime')
 plt.scatter(timevec/period,P_bins[0,:]/cfg.Pinf, s=10, c='blue', label="Sampled Data")
 for jj in range(P_bins.shape[0]):
     plt.scatter(timevec/period,P_bins[jj,:]/cfg.Pinf, s=10, c='blue')
