@@ -5,36 +5,48 @@ matplotlib.use('Agg')  #display not required
 import matplotlib.pyplot as plt
 from multiprocessing import Pool
 import util_functions
+import h5py
 
-slices = []
-taps = []
-
-filename_slices = f"{cfg.basename}/outputs_0150000/slices_K151_0150000"
 filename_taps = f"{cfg.basename}/outputs_0150000/taps_K151_0150000"
+filename_slices = f"{cfg.basename}/outputs_0150000/slices_K151_0150000"
 
-slices = util_functions.loadslices(filename_slices,1000)
-taps = util_functions.loadslices(filename_taps,20000)
+loadpath_taps = util_functions.loadslices_h5(filename_taps,20000)
+with h5py.File(loadpath_taps, 'r') as hf:
+    NJ_taps = hf.attrs['NJ']
+    NK_taps = hf.attrs['NK']
+    NL_taps = hf.attrs['NL']
+    XLOC_taps = hf['X'][:,:,:]
+    YLOC_taps = hf['Y'][:,:,:]
+    ZLOC_taps = hf['Z'][:,:,:]
+    P_taps = hf['p'][:,cfg.tapnum_vec,0,0]
+    
+loadpath_slices = util_functions.loadslices_h5(filename_slices,1000)
+with h5py.File(loadpath_slices, 'r') as hf:
+    NJ_slices = hf.attrs['NJ']
+    NK_slices = hf.attrs['NK']
+    NL_slices = hf.attrs['NL']
+    XLOC_slices = hf['X'][:,:,:]
+    YLOC_slices = hf['Y'][:,:,:]
+    ZLOC_slices = hf['Z'][:,:,:]
+    rho_slices = hf['rho'][:,:,:,:]
+        
+print('--Done Loading Data--')
 
-XLOCDATA = slices[0]["X"][:,0,:]
-YLOCDATA = slices[0]["Y"][:,0,:]
-ZLOCDATA = slices[0]["Z"][:,0,:]
-
-print("Done loading data")
 
 def plot_dens_grad(nn):
-    slice_data = slices[nn]
+    slice_data = rho_slices[nn,:,:,:]
 
-    v = np.linspace(-2.0, 0.3, 300, endpoint=True)
-    radius = np.sqrt(YLOCDATA**2 + ZLOCDATA**2)
+    v = np.linspace(0, 2.0, 300, endpoint=True)
+    radius = np.sqrt(YLOC_slices**2 + ZLOC_slices**2)
 
-    rhoGrad = util_functions.computeSchlieren(slice_data["NJ"], slice_data["NL"], XLOCDATA, radius, slice_data["Q"][:,0,:,0])
+    rhoGrad = util_functions.computeSchlieren(NJ_slices, NL_slices, XLOC_slices[:,0,:], radius[:,0,:], slice_data[:,0,:])
 
     plt.rcParams.update({'font.size': 16,'axes.labelsize': 16,
                          'axes.titlesize': 16,'xtick.labelsize': 16,
                          'ytick.labelsize': 16})
 
     fig, ax = plt.subplots(figsize=(20, 3.2), constrained_layout=True)
-    ax.contourf(XLOCDATA, radius, np.log10(rhoGrad[:,0,:]),v, cmap='gray', extend='both')
+    ax.contourf(XLOC_slices[:,0,:], radius[:,0,:], rhoGrad[:,0,:]/cfg.rhoinf, v, cmap='gray', extend='both')
     plt.xlim(380, 590)
     plt.ylim(30, 70)
     plt.title(r"$\nabla \rho /\rho_{\infty}$")
@@ -44,49 +56,15 @@ def plot_dens_grad(nn):
     plt.close()
      
 def plot_tap_history(nn):
-    print("begin tap history function")
-    slice_data = slices[nn]
-
-    P = []
-    
-    print("beginning tap processing")
-    for kk in range(len(cfg.tapnum_vec)):
-
-        rho_star = []
-        rho_star_u_star = []
-        rho_star_v_star = []
-        rho_star_w_star = []
-        rho_star_e_star = []
-
-        for jj in range(20000):
-
-            rho_star.append(taps[jj]["Q"][cfg.tapnum_vec[kk],0,0,0])
-            rho_star_u_star.append(taps[jj]["Q"][cfg.tapnum_vec[kk],0,0,1])
-            rho_star_v_star.append(taps[jj]["Q"][cfg.tapnum_vec[kk],0,0,2])
-            rho_star_w_star.append(taps[jj]["Q"][cfg.tapnum_vec[kk],0,0,3])
-            rho_star_e_star.append(taps[jj]["Q"][cfg.tapnum_vec[kk],0,0,4])
-
-
-        rho = np.array(rho_star)*cfg.rhoinf
-        u_star = np.array(rho_star_u_star)/np.array(rho_star)
-        u = u_star*cfg.ainf
-        v_star = np.array(rho_star_v_star)/np.array(rho_star)
-        v = v_star*cfg.ainf
-        w_star = np.array(rho_star_w_star)/np.array(rho_star)
-        w = w_star*cfg.ainf
-        e_star = np.array(rho_star_e_star)/np.array(rho_star)
-        e = e_star*cfg.ainf**2
-        temp = (e - 0.5*(u**2 + v**2 + w**2))/cfg.Cv
-
-        P.append(rho*cfg.R*temp)
-        print("processed one tap")
-
-    print("begin plotting")
+    slice_data = rho_slices[nn,:,:,:]
 
     v = np.linspace(0, 2, 300, endpoint=True)
-    radius = np.sqrt(slice_data["Y"][:,0,:]**2 + slice_data["Z"][:,0,:]**2)
+    radius = np.sqrt(YLOC_slices**2 + ZLOC_slices**2)
+    radius_tap = np.zeros(2)
+    radius_tap[0] = np.sqrt(YLOC_taps[cfg.tapnum_vec[0],:,:]**2 + ZLOC_taps[cfg.tapnum_vec[0],:,:]**2).item()
+    radius_tap[1] = np.sqrt(YLOC_taps[cfg.tapnum_vec[1],:,:]**2 + ZLOC_taps[cfg.tapnum_vec[1],:,:]**2).item()
 
-    rhoGrad = util_functions.computeSchlieren(slice_data["NJ"], slice_data["NL"], slice_data["X"][:,0,:], radius, slice_data["Q"][:,0,:,0])
+    rhoGrad = util_functions.computeSchlieren(NJ_slices, NL_slices, XLOC_slices[:,0,:], radius[:,0,:], slice_data[:,0,:])
 
     timevec = np.arange(1, 20001) * cfg.timestep
 
@@ -96,22 +74,22 @@ def plot_tap_history(nn):
 
     fig, axes = plt.subplots(3, 1, figsize=(8, 6))
 
-    axes[0].contourf(slice_data["X"][:,0,:], radius, rhoGrad[:,0,:],v, cmap='gray', extend='both')
-    axes[0].scatter(taps[0]["X"][cfg.tapnum_vec[0]].flatten(), np.sqrt(taps[0]["Y"][cfg.tapnum_vec[0]].flatten()**2 + taps[0]["Z"][cfg.tapnum_vec[0]].flatten()**2), color='magenta')
-    axes[0].scatter(taps[0]["X"][cfg.tapnum_vec[1]].flatten(), np.sqrt(taps[0]["Y"][cfg.tapnum_vec[1]].flatten()**2 + taps[0]["Z"][cfg.tapnum_vec[1]].flatten()**2), color='green')
+    axes[0].contourf(XLOC_slices[:,0,:], radius[:,0,:], rhoGrad[:,0,:]/cfg.rhoinf,v, cmap='gray', extend='both')
+    axes[0].scatter(XLOC_taps[cfg.tapnum_vec[0],:,:].flatten(), radius_tap[0] ,color='magenta')
+    axes[0].scatter(XLOC_taps[cfg.tapnum_vec[1],:,:].flatten(), radius_tap[1] ,color='green')
     axes[0].set_title(r"$\nabla \rho /\rho_{\infty}$")
     axes[0].set_xlabel("x [mm]")
     axes[0].set_ylabel("r [mm]")
     axes[0].set_xlim(390, 590)
 
-    axes[1].plot(timevec, P[0]/cfg.Pinf, color='magenta')
+    axes[1].plot(timevec, P_taps[0:20000,0]/cfg.Pinf, color='magenta')
     axes[1].axvline(x= cfg.timestep*20*nn, linestyle='--', linewidth=1, label='Vertical line')
     axes[1].set_ylabel("$P/P_{\infty}$")
     axes[1].set_xlim(0,0.002)
     axes[1].set_xticks([0.0,0.001,0.002])
     axes[1].grid(True)
 
-    axes[2].plot(timevec, P[1]/cfg.Pinf, color='green')
+    axes[2].plot(timevec, P_taps[0:20000,0]/cfg.Pinf, color='green')
     axes[2].axvline(x= cfg.timestep*20*nn, linestyle='--', linewidth=1, label='Vertical line')
     axes[2].set_ylabel("$P/P_{\infty}$")
     axes[2].set_xlabel("time [s]")
@@ -127,7 +105,7 @@ if __name__ == "__main__":
     num_workers = 64
 
     with Pool(processes=num_workers) as pool:
-        pool.map(plot_dens_grad, range(1000))
+        pool.map(plot_tap_history, range(10))
         #pool.map(plot_dens_grad, range(cfg.num_slices))
 
     print("All slices processed in parallel.")
