@@ -13,19 +13,27 @@ from multiprocessing import Pool
 import util_functions
 import pyvista as pv
 import colorcet as cc
+import h5py
 
-slices = []
 
-filename_slices = f"{cfg.basename}/outputs_0150000/slice_K151_0150000"
+filename_slices = f"{cfg.basename}/outputs_0150000/slices_K151_0150000"
 
-slices = util_functions.loadslices(filename_slices,1000)
+loadpath_slices = util_functions.loadslices_h5(filename_slices,1000)
+with h5py.File(loadpath_slices, 'r') as hf:
+    NJ = hf.attrs['NJ']
+    NK = hf.attrs['NK']
+    NL = hf.attrs['NL']
+    XLOC = hf['X'][:,:,:]
+    YLOC = hf['Y'][:,:,:]
+    ZLOC = hf['Z'][:,:,:]
+    rho = hf['rho'][:,:,:,:]
 
-print("Done loading data")
+print('--Done Loading Data--')
 
-density = np.zeros((cfg.num_slices, slices[0]["NJ"], slices[0]["NL"]))  #init density
+#density = np.zeros((1000, slices[0]["NJ"], slices[0]["NL"]))  #init density
 
-for nn in range(cfg.num_slices):
-    density[nn,:,:] = slices[nn]["Q"][:,0,:,0]
+#for nn in range(cfg.num_slices):
+#    density[nn,:,:] = slices[nn]["Q"][:,0,:,0]
 
 #density[:,:,:] = ndimage.gaussian_filter(density[:,:,:], sigma=2)
 
@@ -34,17 +42,15 @@ if(cfg.dofilter==1):
     #    for ll in range(slices[0]["NL"]):
     #        density[:,jj,ll] = ndimage.gaussian_filter(density[:,jj,ll], sigma=1)
     for nn in range(cfg.num_slices):
-        density[nn,:,:] = ndimage.gaussian_filter(density[nn,:,:], sigma=3)
+        rho[nn,:,:,:] = ndimage.gaussian_filter(rho[nn,:,:,:], sigma=3)
 
-def plot_dens_grad(nn):
-    slice_data = slices[nn]
-    density_data = density[nn,:,:]
+def plot_shear_track(nn):
+    density_data = rho[nn,:,:,:]/cfg.rhoinf
     
-    xData = slice_data["X"][:,0,:]
-    radius = np.sqrt(slice_data["Y"][:,0,:]**2 + slice_data["Z"][:,0,:]**2)
+    radius = np.sqrt(YLOC**2 + ZLOC**2)
 
-    grid = pv.StructuredGrid(xData, radius, np.zeros_like(xData))
-    grid["rho"] = density_data.flatten(order="F")
+    grid = pv.StructuredGrid(XLOC, radius, np.zeros_like(XLOC))
+    grid["rho_plot"] = density_data.flatten(order="F")
 
     contour1 = grid.contour([0.7])
     points1 = contour1.points
@@ -54,7 +60,7 @@ def plot_dens_grad(nn):
     
     plotter = pv.Plotter(off_screen=True)
     plotter.background_color = "white"
-    plotter.add_mesh(grid, scalars="rho", opacity=1.0, clim=[0.0,2.0], lighting=False, smooth_shading=False, cmap="CET_L1",show_scalar_bar=False)  #CET_CBTL3
+    plotter.add_mesh(grid, scalars="rho_plot", opacity=1.0, clim=[0.0,2.0], lighting=False, smooth_shading=False, cmap="CET_L1",show_scalar_bar=False)  #CET_CBTL3
     #plotter.add_scalar_bar(title=r'$\rho/\rho_{\infty}$', n_labels=6, title_font_size=30, label_font_size=30, color="black", position_x=0.04, position_y=0.90)
     plotter.add_mesh(contour1, color="red", line_width=4)
     plotter.add_mesh(contour2, color="lime", line_width=4)
@@ -68,10 +74,10 @@ def plot_dens_grad(nn):
     #plotter.show(screenshot=f"images/myplot_{nn:02d}.png")
 
 if __name__ == "__main__":
-    num_workers = 64
+    num_workers = 8
 
     with Pool(processes=num_workers) as pool:
         #pool.map(plot_tap_history, range(cfg.num_slices))
-        pool.map(plot_dens_grad, range(cfg.num_slices))
+        pool.map(plot_shear_track, range(10))
 
         print("All slices processed in parallel.")

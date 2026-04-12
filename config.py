@@ -4,7 +4,7 @@ basename = "../2000Hz_60p/outputs"
 tapnum = 700     #J index of the tap you's like to plot for PhaseAvg.py
 tapnum_vec = [700,900]   #J index vector of the taps to plot for makePSD and makeSlices
 
-dofilter = 1  #Apply gaussian filter for shearTrack.py
+dofilter = 0  #Apply gaussian filter for shearTrack.py
 
 Lsep = 0.07
 
