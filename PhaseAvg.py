@@ -1,64 +1,35 @@
 import config as cfg
 import numpy as np
-import matplotlib
 #matplotlib.use('Agg')  #display not required
 import matplotlib.pyplot as plt
-from multiprocessing import Pool
-from scipy.signal import welch
 import util_functions
+import h5py
 
 period = 1/cfg.packetfreq
 iter_interval = cfg.fsample/cfg.packetfreq
 
-slices = []
-
-P = []
-
-rho_star = []
-rho_star_u_star = []
-rho_star_v_star = []
-rho_star_w_star = []
-rho_star_e_star = []
-
+loadP = []
 for ii in range(len(cfg.filenames_taps)):
+    loadpath = util_functions.loadslices_h5(cfg.filenames_taps[ii],cfg.lengths_taps[ii])
+    with h5py.File(loadpath, 'r') as hf:
+        NJ = hf.attrs['NJ']
+        NK = hf.attrs['NK']
+        NL = hf.attrs['NL']
+        XLOC = hf['X'][:,:,:]
+        YLOC = hf['Y'][:,:,:]
+        ZLOC = hf['Z'][:,:,:]
+        loadP.append(hf['p'][:,cfg.tapnum,0,0])
+        
+P = np.concatenate(loadP, axis=0)
+print('--Done Loading Data--')
 
-    slices = util_functions.loadslices(cfg.filenames_taps[ii],cfg.lengths_taps[ii])
+nperiods = np.round(np.size(P, 0)/iter_interval).astype(int)
 
-    for nn in range(cfg.lengths_taps[ii]):
-
-        rho_star.append(slices[nn]["Q"][cfg.tapnum,0,0,0])
-        rho_star_u_star.append(slices[nn]["Q"][cfg.tapnum,0,0,1])
-        rho_star_v_star.append(slices[nn]["Q"][cfg.tapnum,0,0,2])
-        rho_star_w_star.append(slices[nn]["Q"][cfg.tapnum,0,0,3])
-        rho_star_e_star.append(slices[nn]["Q"][cfg.tapnum,0,0,4])
-
-rho = np.array(rho_star)*cfg.rhoinf
-u_star = np.array(rho_star_u_star)/np.array(rho_star)
-u = u_star*cfg.ainf
-v_star = np.array(rho_star_v_star)/np.array(rho_star)
-v = v_star*cfg.ainf
-w_star = np.array(rho_star_w_star)/np.array(rho_star)
-w = w_star*cfg.ainf
-e_star = np.array(rho_star_e_star)/np.array(rho_star)
-e = e_star*cfg.ainf**2
-temp = (e - 0.5*(u**2 + v**2 + w**2))/cfg.Cv
-
-P.append(rho*cfg.R*temp)
-P = np.array(P)
-
-P = P.flatten()
-print(P.shape)
-
-nperiods = round(len(P[:])/iter_interval)
-
-P_bins = []
+P_bins = np.zeros((nperiods,(np.sum(cfg.lengths_taps)/nperiods).astype(int)))
 for ii in range(nperiods):
     startidx = int(ii*iter_interval)
     endidx = int((ii+1)*iter_interval)
-    P_bins.append(P[startidx:endidx])
-
-P_bins = np.array(P_bins)
-print(P_bins.shape)
+    P_bins[ii,:] = P[startidx:endidx]
 
 timevec = np.arange(1, iter_interval + 1) * cfg.timestep
 

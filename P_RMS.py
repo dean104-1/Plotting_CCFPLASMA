@@ -1,6 +1,5 @@
 import config as cfg
 import numpy as np
-import matplotlib
 #matplotlib.use('Agg')  #display not required
 import matplotlib.pyplot as plt
 import util_functions
@@ -17,7 +16,6 @@ for ii in range(len(cfg.filenames_taps)):
         
 P = np.concatenate(loadP, axis=0)
 print('--Done Loading Data--')
-print(P.shape)
 
 P_avg = np.mean(P, axis=0) #take average over time
 P_prime = P - P_avg

@@ -10,6 +10,7 @@ def loadslices_h5(fname,nslices):
         print(f'found {fname}.h5')
         return Path(f'{fname}.h5')
     else:
+        print(f'did not find {fname}.h5')
         with open(fname, 'rb') as f, h5py.File(f'{fname}.h5', 'w') as hf:
             initialized = False
             for tt in range(nslices):
