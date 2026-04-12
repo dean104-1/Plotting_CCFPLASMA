@@ -14,34 +14,59 @@ from multiprocessing import Pool
 import util_functions
 import pyvista as pv
 import colorcet as cc
-
-slices = []
+import h5py
 
 filename_wall = f"{cfg.basename}/outputs_0050000/slices_wall_0050000" 
 filename_right_wall = f"{cfg.basename}/outputs_0050000/slices_K601_0050000"
-filename_cross = f"{cfg.basename}/outputs_0050000/slices_J1300_0050000" 
+filename_cross = f"{cfg.basename}/outputs_0050000/slices_J1300_0050000"
 
-slices_wall = util_functions.loadslices(filename_wall,cfg.lengths_slices[0])
-slices_right_wall = util_functions.loadslices(filename_right_wall,cfg.lengths_slices[0])
-slices_cross = util_functions.loadslices(filename_cross,cfg.lengths_slices[0])
+loadpath_wall = util_functions.loadslices_h5(filename_wall,1000)
+with h5py.File(loadpath_wall, 'r') as hf:
+    NJ_wall = hf.attrs['NJ']
+    NK_wall = hf.attrs['NK']
+    NL_wall = hf.attrs['NL']
+    XLOC_wall = hf['X'][:,:,:]
+    YLOC_wall = hf['Y'][:,:,:]
+    ZLOC_wall = hf['Z'][:,:,:]
+    rho_wall = hf['rho'][:,:,:,:]
+
+loadpath_right_wall = util_functions.loadslices_h5(filename_right_wall,1000)
+with h5py.File(loadpath_right_wall, 'r') as hf:
+    NJ_right_wall = hf.attrs['NJ']
+    NK_right_wall = hf.attrs['NK']
+    NL_right_wall = hf.attrs['NL']
+    XLOC_right_wall = hf['X'][:,:,:]
+    YLOC_right_wall = hf['Y'][:,:,:]
+    ZLOC_right_wall = hf['Z'][:,:,:]
+    rho_right_wall = hf['rho'][:,:,:,:]
+    
+loadpath_cross = util_functions.loadslices_h5(filename_cross,1000)
+with h5py.File(loadpath_cross, 'r') as hf:
+    NJ_cross = hf.attrs['NJ']
+    NK_cross = hf.attrs['NK']
+    NL_cross = hf.attrs['NL']
+    XLOC_cross = hf['X'][:,:,:]
+    YLOC_cross = hf['Y'][:,:,:]
+    ZLOC_cross = hf['Z'][:,:,:]
+    rho_cross = hf['rho'][:,:,:,:]
 
 print("Done loading data")
 
-def plot_dens_grad(nn):
-    slice_data_wall = slices_wall[nn]
-    slice_data_right_wall = slices_right_wall[nn]
-    slice_data_cross = slices_cross[nn]
+def plot_dens(nn):
+    slice_data_wall = rho_wall[nn,:,:,:]/cfg.rhoinf
+    slice_data_right_wall = rho_right_wall[nn,:,:,:]/cfg.rhoinf
+    slice_data_cross = rho_cross[nn,:,:,:]/cfg.rhoinf
     
-    grid_wall = pv.StructuredGrid(slice_data_wall["X"][:,:,:], slice_data_wall["Y"][:,:,:], slice_data_wall["Z"][:,:,:])
-    grid_wall["rho"] = slice_data_wall["Q"][:,:,:,0].flatten(order="F")
+    grid_wall = pv.StructuredGrid(XLOC_wall, YLOC_wall, ZLOC_wall)
+    grid_wall["rho"] = slice_data_wall.flatten(order="F")
     edges_wall = grid_wall.extract_feature_edges()
-
-    grid_right_wall = pv.StructuredGrid(slice_data_right_wall["X"][:,:,:], slice_data_right_wall["Y"][:,:,:], slice_data_right_wall["Z"][:,:,:])
-    grid_right_wall["rho"] = slice_data_right_wall["Q"][:,:,:,0].flatten(order="F")
+    
+    grid_right_wall = pv.StructuredGrid(XLOC_right_wall, YLOC_right_wall, ZLOC_right_wall)
+    grid_right_wall["rho"] = slice_data_right_wall.flatten(order="F")
     edges_right_wall = grid_right_wall.extract_feature_edges()
-
-    grid_cross = pv.StructuredGrid(slice_data_cross["X"][:,:,:], slice_data_cross["Y"][:,:,:], slice_data_cross["Z"][:,:,:])
-    grid_cross["rho"] = slice_data_cross["Q"][:,:,:,0].flatten(order="F")
+    
+    grid_cross = pv.StructuredGrid(XLOC_cross, YLOC_cross, ZLOC_cross)
+    grid_cross["rho"] = slice_data_cross.flatten(order="F")
     edges_cross = grid_cross.extract_feature_edges()
 
     plotter = pv.Plotter(off_screen=True)
@@ -67,6 +92,6 @@ if __name__ == "__main__":
     num_workers = 32
 
     with Pool(processes=num_workers) as pool:
-        pool.map(plot_dens_grad, range(cfg.lengths_slices[0]))
-
+        #pool.map(plot_dens, range(cfg.lengths_slices[0]))
+        pool.map(plot_dens, range(10))
         print("All slices processed in parallel.")
