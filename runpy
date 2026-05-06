@@ -31,4 +31,5 @@ python3.11 makeSlices.py
 #python3.11 animateFullBody.py
 #python3.11 makePSD.py
 #python3.11 PhaseAvg.py
-#python3.11 dynModeDecomp.py 
+#python3.11 dynModeDecomp.py
+#python3.11 binTOh5.py

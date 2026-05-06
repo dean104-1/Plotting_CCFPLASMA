@@ -7,10 +7,10 @@ from multiprocessing import Pool
 import util_functions
 import h5py
 
-filename_taps = f"{cfg.basename}/outputs_0150000/taps_K151_0150000"
-filename_slices = f"{cfg.basename}/outputs_0150000/slices_K151_0150000"
+filename_taps = f"{cfg.basename}/outputs_0090000/taps_K151_0090000"
+filename_slices = f"{cfg.basename}/outputs_0090000/slices_K151_0090000"
 
-loadpath_taps = util_functions.loadslices_h5(filename_taps,20000)
+loadpath_taps = util_functions.loadslices_h5(filename_taps,30000)
 with h5py.File(loadpath_taps, 'r') as hf:
     NJ_taps = hf.attrs['NJ']
     NK_taps = hf.attrs['NK']
@@ -20,7 +20,7 @@ with h5py.File(loadpath_taps, 'r') as hf:
     ZLOC_taps = hf['Z'][:,:,:]
     P_taps = hf['p'][:,cfg.tapnum_vec,0,0]
     
-loadpath_slices = util_functions.loadslices_h5(filename_slices,1000)
+loadpath_slices = util_functions.loadslices_h5(filename_slices,1500)
 with h5py.File(loadpath_slices, 'r') as hf:
     NJ_slices = hf.attrs['NJ']
     NK_slices = hf.attrs['NK']
@@ -45,8 +45,8 @@ def plot_dens_grad(nn):
                          'axes.titlesize': 16,'xtick.labelsize': 16,
                          'ytick.labelsize': 16})
 
-    fig, ax = plt.subplots(figsize=(20, 3.2), constrained_layout=True)
-    ax.contourf(XLOC_slices[:,0,:], radius[:,0,:], rhoGrad[:,0,:]/cfg.rhoinf, v, cmap='gray', extend='both')
+    fig, ax = plt.subplots(figsize=(20, 3.81), constrained_layout=True)
+    ax.contourf(XLOC_slices[:,0,:], radius[:,0,:], rhoGrad[:,0,:]/cfg.rhoinf, v, cmap='gist_rainbow', extend='both')
     plt.xlim(380, 590)
     plt.ylim(30, 70)
     plt.title(r"$\nabla \rho /\rho_{\infty}$")
@@ -105,7 +105,7 @@ if __name__ == "__main__":
     num_workers = 64
 
     with Pool(processes=num_workers) as pool:
-        pool.map(plot_tap_history, range(10))
-        #pool.map(plot_dens_grad, range(cfg.num_slices))
+        #pool.map(plot_tap_history, range(10))
+        pool.map(plot_dens_grad, range(1000))
 
     print("All slices processed in parallel.")

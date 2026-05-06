@@ -16,7 +16,7 @@ import colorcet as cc
 import h5py
 
 
-filename_slices = f"{cfg.basename}/outputs_0150000/slices_K151_0150000"
+filename_slices = f"{cfg.basename}/outputs_0100000/slices_0100000"
 
 loadpath_slices = util_functions.loadslices_h5(filename_slices,1000)
 with h5py.File(loadpath_slices, 'r') as hf:
@@ -30,18 +30,11 @@ with h5py.File(loadpath_slices, 'r') as hf:
 
 print('--Done Loading Data--')
 
-#density = np.zeros((1000, slices[0]["NJ"], slices[0]["NL"]))  #init density
-
-#for nn in range(cfg.num_slices):
-#    density[nn,:,:] = slices[nn]["Q"][:,0,:,0]
-
-#density[:,:,:] = ndimage.gaussian_filter(density[:,:,:], sigma=2)
-
 if(cfg.dofilter==1):
     #for jj in range(slices[0]["NJ"]):
     #    for ll in range(slices[0]["NL"]):
     #        density[:,jj,ll] = ndimage.gaussian_filter(density[:,jj,ll], sigma=1)
-    for nn in range(cfg.num_slices):
+    for nn in range(1000):
         rho[nn,:,:,:] = ndimage.gaussian_filter(rho[nn,:,:,:], sigma=3)
 
 def plot_shear_track(nn):
@@ -78,6 +71,6 @@ if __name__ == "__main__":
 
     with Pool(processes=num_workers) as pool:
         #pool.map(plot_tap_history, range(cfg.num_slices))
-        pool.map(plot_shear_track, range(10))
+        pool.map(plot_shear_track, range(400))
 
         print("All slices processed in parallel.")

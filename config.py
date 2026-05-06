@@ -1,5 +1,5 @@
-packetfreq = 2000     #Hz
-basename = "../2000Hz_60p/outputs"
+packetfreq = 5000     #Hz
+basename = "../5000Hz/outputs"
 
 tapnum = 700     #J index of the tap you's like to plot for PhaseAvg.py
 tapnum_vec = [700,900]   #J index vector of the taps to plot for makePSD and makeSlices
@@ -8,11 +8,11 @@ dofilter = 0  #Apply gaussian filter for shearTrack.py
 
 Lsep = 0.07
 
-filenames_slices = [f"{basename}/outputs_0150000/slices_K151_0150000"]
+filenames_slices = [f"{basename}/outputs_0100000/slices_K151_0100000"]
 lengths_slices = [5000]
 
-filenames_taps = [f"{basename}/outputs_0150000/taps_K151_0150000"]
-lengths_taps = [100000]
+filenames_taps = [f"{basename}/outputs_0100000/taps_K151_0100000"]
+lengths_taps = [50000]
 
 #Define thermo variables
 rhoinf = 0.03754  #kg/m^3
